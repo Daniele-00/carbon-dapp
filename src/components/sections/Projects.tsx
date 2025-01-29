@@ -60,6 +60,7 @@ const ProjectsSection = () => {
   >({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [currentProjectIndex, setCurrentProjectIndex] = useState(0);
   const [isAddingProject, setIsAddingProject] = useState(false);
   const [newProject, setNewProject] = useState<Partial<Project>>({});
@@ -85,8 +86,6 @@ const ProjectsSection = () => {
     const totalContributed = (progressNumber * project.tokens) / 100;
     return Math.max(0, Math.floor(project.tokens - totalContributed));
   };
-
-  const [successMessage, setSuccessMessage] = useState("");
 
   // Verifica connessione wallet al caricamento
   useEffect(() => {
@@ -204,8 +203,8 @@ const ProjectsSection = () => {
 
     try {
       setLoading(true);
-      setSuccessMessage("");
       setError("");
+      setSuccessMessage("");
       const provider = new ethers.BrowserProvider(window.ethereum);
 
       const contract = await getContract();
@@ -233,7 +232,6 @@ const ProjectsSection = () => {
 
       setSelectedProject(null);
       setContributionAmount(0);
-
       setSuccessMessage(
         `Contribuzione di ${contributionAmount} token effettuata con successo`
       );
@@ -304,6 +302,7 @@ const ProjectsSection = () => {
     try {
       setLoading(true);
       setError("");
+      setSuccessMessage("");
 
       const provider = new ethers.BrowserProvider(window.ethereum);
       const contract = await getContract();
@@ -345,7 +344,7 @@ const ProjectsSection = () => {
       setIsAddingProject(false);
 
       // Mostra messaggio di successo
-      alert("Nuovo progetto creato con successo!");
+      setSuccessMessage("Nuovo progetto creato con successo!");
     } catch (error: any) {
       console.error("Errore nell'aggiunta del progetto:", error);
       setError(`Errore nell'aggiunta del progetto: ${error.message}`);
@@ -370,9 +369,22 @@ const ProjectsSection = () => {
   return (
     <section className="py-20 bg-green-50">
       <div className="max-w-7xl mx-auto px-4">
-        {error && (
-          <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg">
-            {error}
+        {(error || successMessage) && (
+          <div
+            className={`fixed top-0 left-0 w-full py-3 text-center font-medium z-50 ${
+              error ? "bg-red-500 text-white" : "bg-green-500 text-white"
+            }`}
+          >
+            {error || successMessage}
+            <button
+              className="ml-4 px-3 py-1 bg-white text-black rounded-full font-bold"
+              onClick={() => {
+                setError("");
+                setSuccessMessage("");
+              }}
+            >
+              ✕
+            </button>
           </div>
         )}
 
@@ -653,16 +665,6 @@ const ProjectsSection = () => {
                       {loading ? "In elaborazione..." : "Conferma Contributo"}
                     </button>
                   </div>
-                  {successMessage && (
-                    <div className="mt-4 p-3 bg-green-100 text-green-700 rounded-lg text-sm">
-                      {successMessage}
-                    </div>
-                  )}
-                  {error && (
-                    <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
-                      {error}
-                    </div>
-                  )}
                 </>
               )}
             </div>

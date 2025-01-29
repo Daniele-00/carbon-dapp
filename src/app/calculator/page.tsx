@@ -26,10 +26,6 @@ export default function CalculatorPage() {
     tokens: 0,
   });
 
-const [freeTokenPurchase, setFreeTokenPurchase] = useState({
-    amount: 0,
-    loading: false
-  });
 
   const [successMessage, setSuccessMessage] = useState("");
 
