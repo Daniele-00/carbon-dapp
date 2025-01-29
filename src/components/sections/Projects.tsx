@@ -10,7 +10,6 @@ interface Project {
   tokens: number; // Solo questo campo per i token
   co2: string;
   location: string;
-  category: string;
 }
 
 // Funzione per caricare i progetti da localStorage
@@ -26,8 +25,7 @@ const loadProjects = (): Project[] => {
             description: "Supporta la riforestazione della foresta amazzonica",
             tokens: 5,
             co2: "500kg",
-            location: "Brasile",
-            category: "Forestazione",
+            location: "America Del Sud",
           },
           {
             id: 2,
@@ -35,8 +33,7 @@ const loadProjects = (): Project[] => {
             description: "Installa pannelli solari in comunità rurali africane",
             tokens: 3,
             co2: "300kg",
-            location: "Kenya",
-            category: "Energia Rinnovabile",
+            location: "Africa",
           },
           {
             id: 3,
@@ -44,8 +41,7 @@ const loadProjects = (): Project[] => {
             description: "Sviluppo di un parco eolico per energia pulita",
             tokens: 8,
             co2: "800kg",
-            location: "Italia",
-            category: "Energia Eolica",
+            location: "Europa",
           },
         ];
   } catch (error) {
@@ -87,8 +83,10 @@ const ProjectsSection = () => {
     const progressNumber =
       typeof progress === "bigint" ? Number(progress) : progress || 0;
     const totalContributed = (progressNumber * project.tokens) / 100;
-    return Math.max(0, project.tokens - totalContributed);
+    return Math.max(0, Math.floor(project.tokens - totalContributed));
   };
+
+  const [successMessage, setSuccessMessage] = useState("");
 
   // Verifica connessione wallet al caricamento
   useEffect(() => {
@@ -206,6 +204,7 @@ const ProjectsSection = () => {
 
     try {
       setLoading(true);
+      setSuccessMessage("");
       setError("");
       const provider = new ethers.BrowserProvider(window.ethereum);
 
@@ -235,7 +234,7 @@ const ProjectsSection = () => {
       setSelectedProject(null);
       setContributionAmount(0);
 
-      alert(
+      setSuccessMessage(
         `Contribuzione di ${contributionAmount} token effettuata con successo`
       );
     } catch (error: any) {
@@ -246,34 +245,33 @@ const ProjectsSection = () => {
     }
   };
 
+  // Aggiungi nel componente
+  const handleRemoveProject = async (projectId: number) => {
+    if (!walletConnected) {
+      await connectWallet();
+      return;
+    }
 
-// Aggiungi nel componente
-const handleRemoveProject = async (projectId: number) => {
-  if (!walletConnected) {
-    await connectWallet();
-    return;
-  }
+    try {
+      setLoading(true);
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const contract = await getContract();
 
-  try {
-    setLoading(true);
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const contract = await getContract();
+      // Chiama la funzione di rimozione nel contratto
+      const tx = await contract.removeProject(projectId);
+      await tx.wait();
 
-    // Chiama la funzione di rimozione nel contratto
-    const tx = await contract.removeProject(projectId);
-    await tx.wait();
+      // Rimuovi il progetto localmente
+      setProjects((prev) => prev.filter((p) => p.id !== projectId));
 
-    // Rimuovi il progetto localmente
-    setProjects(prev => prev.filter(p => p.id !== projectId));
-
-    alert("Progetto eliminato con successo");
-  } catch (error: any) {
-    console.error("Errore nell'eliminazione del progetto:", error);
-    setError(error.message);
-  } finally {
-    setLoading(false);
-  }
-};
+      alert("Progetto eliminato con successo");
+    } catch (error: any) {
+      console.error("Errore nell'eliminazione del progetto:", error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAddProject = async () => {
     // Controlla se il wallet è connesso
@@ -330,9 +328,10 @@ const handleRemoveProject = async (projectId: number) => {
           description: newProject.description || "",
           tokens: newProject.tokens || 0, // Valore di default
           co2: newProject.co2 || "0kg",
-          price: "50.00", // Valore di default
-          location: "Globale",
-          category: newProject.category || "Altro",
+          price: newProject.co2
+            ? parseInt(newProject.co2.replace("kg", "")) * 100
+            : 0,
+          location: newProject.location || "Sconosciuto",
         },
       ]);
 
@@ -341,7 +340,6 @@ const handleRemoveProject = async (projectId: number) => {
         title: "",
         description: "",
         co2: "",
-        category: "",
         location: "",
       });
       setIsAddingProject(false);
@@ -466,7 +464,7 @@ const handleRemoveProject = async (projectId: number) => {
                   Progresso: {projectProgresses[project.id] || 0}%
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col items-center gap-3 mt-4">
                   <button
                     onClick={() => setSelectedProject(project)}
                     disabled={projectProgresses[project.id] >= 100}
@@ -481,15 +479,15 @@ const handleRemoveProject = async (projectId: number) => {
                       : "Contribuisci"}
                   </button>
                 </div>
-                 
-    <div className="p-4 flex justify-between items-center">
-      <button
-        onClick={() => handleRemoveProject(project.id)}
-        className="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600"
-      >
-        Elimina Progetto
-      </button>
-    </div>
+
+                <div className="p-4 flex justify-between items-center">
+                  <button
+                    onClick={() => handleRemoveProject(project.id)}
+                    className="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600"
+                  >
+                    Elimina Progetto
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -499,7 +497,7 @@ const handleRemoveProject = async (projectId: number) => {
         {isAddingProject && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-xl p-8 max-w-md w-full">
-              <h3 className="text-2xl font-bold text-green-800 mb-4">
+              <h3 className="text-2xl font-bold text-black mb-4">
                 Aggiungi Nuovo Progetto
               </h3>
               <input
@@ -509,7 +507,7 @@ const handleRemoveProject = async (projectId: number) => {
                 onChange={(e) =>
                   setNewProject((prev) => ({ ...prev, title: e.target.value }))
                 }
-                className="w-full p-3 border border-green-200 rounded-lg mb-4"
+                className="w-full p-3 border border-gray-400 rounded-lg mb-4 bg-white text-black"
               />
               <textarea
                 placeholder="Descrizione"
@@ -520,48 +518,55 @@ const handleRemoveProject = async (projectId: number) => {
                     description: e.target.value,
                   }))
                 }
-                className="w-full p-3 border border-green-200 rounded-lg mb-4"
+                className="w-full p-3 border border-gray-400 rounded-lg mb-4 bg-white text-black"
               />
               <input
                 type="number"
                 placeholder="Token Richiesti"
                 value={newProject.tokens || ""}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const tokenValue = Number(e.target.value);
                   setNewProject((prev) => ({
                     ...prev,
                     tokens: Number(e.target.value),
-                  }))
-                }
-                className="w-full p-3 border border-green-200 rounded-lg mb-4"
+                    co2: tokenValue ? `${tokenValue * 100}kg` : "",
+                  }));
+                }}
+                className="w-full p-3 border border-gray-400 rounded-lg mb-4 bg-white text-black"
               />
               <input
                 type="text"
                 placeholder="CO2 Ridotta (in kg)"
                 value={newProject.co2 || ""}
+                disabled
                 onChange={(e) =>
                   setNewProject((prev) => ({ ...prev, co2: e.target.value }))
                 }
-                className="w-full p-3 border border-green-200 rounded-lg mb-4"
+                className="w-full p-3 border border-gray-400 rounded-lg mb-4 bg-white text-black"
               />
               <select
-                value={newProject.category || ""}
+                value={newProject.location || ""}
                 onChange={(e) =>
                   setNewProject((prev) => ({
                     ...prev,
-                    category: e.target.value,
+                    location: e.target.value,
                   }))
                 }
-                className="w-full p-3 border border-green-200 rounded-lg mb-4"
+                className="w-full p-3 border border-gray-400 rounded-lg mb-4 bg-white text-black"
               >
-                <option value="">Seleziona Categoria</option>
-                <option value="Forestazione">Forestazione</option>
-                <option value="Energia Rinnovabile">Energia Rinnovabile</option>
-                <option value="Altro">Altro</option>
+                <option value="">Seleziona Posizione</option>
+                <option value="Europa">Europa</option>
+                <option value="Africa">Africa</option>
+                <option value="America Del Nord">America Del Nord</option>
+                <option value="America Del Sud">America Del Sud</option>
+                <option value="Asia">Asia</option>
+                <option value="Oceania">Oceania</option>
+                <option value="Globale">Globale</option>
               </select>
               <div className="flex justify-between">
                 <button
                   onClick={() => setIsAddingProject(false)}
-                  className="px-6 py-2 bg-gray-200 text-gray-800 rounded-full"
+                  className="px-6 py-2 bg-gray-300 text-black rounded-full"
                 >
                   Annulla
                 </button>
@@ -599,8 +604,8 @@ const handleRemoveProject = async (projectId: number) => {
                 </div>
               ) : (
                 <>
-                  <p className="text-green-600 mb-6">
-                    Inserisci il numero di token che vuoi contribuire
+                  <p className="text-black mb-6">
+                    Inserisci il numero di token con cui vuoi contribuire
                   </p>
                   <input
                     type="number"
@@ -614,7 +619,7 @@ const handleRemoveProject = async (projectId: number) => {
                           selectedProject.tokens;
                       setContributionAmount(Math.min(value, maxContribution));
                     }}
-                    className="w-full p-3 border border-green-200 rounded-lg mb-4"
+                    className="w-full p-3 text-black border border-green-200 rounded-lg mb-4"
                     placeholder="Numero di token"
                     min="1"
                     max={
@@ -648,6 +653,16 @@ const handleRemoveProject = async (projectId: number) => {
                       {loading ? "In elaborazione..." : "Conferma Contributo"}
                     </button>
                   </div>
+                  {successMessage && (
+                    <div className="mt-4 p-3 bg-green-100 text-green-700 rounded-lg text-sm">
+                      {successMessage}
+                    </div>
+                  )}
+                  {error && (
+                    <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+                      {error}
+                    </div>
+                  )}
                 </>
               )}
             </div>
