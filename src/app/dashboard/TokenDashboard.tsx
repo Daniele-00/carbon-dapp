@@ -294,76 +294,64 @@ export default function DashboardPage() {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b bg-gray-100">
-                      {" "}
-                      {/* Sfondo per il titolo */}
-                      <th className="text-left py-3 px-4 text-gray-800 uppercase text-sm font-medium">
-                        Tipo
-                      </th>
-                      <th className="text-left py-3 px-4 text-gray-800 uppercase text-sm font-medium">
-                        Data
-                      </th>
-                      <th className="text-left py-3 px-4 text-gray-800 uppercase text-sm font-medium">
-                        Quantità
-                      </th>
-                      <th className="text-left py-3 px-4 text-gray-800 uppercase text-sm font-medium">
-                        Dettagli
-                      </th>
-                      <th className="text-left py-3 px-4 text-gray-800 uppercase text-sm font-medium">
-                        Hash Transazione
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {transactions.map((tx, index) => (
-                      <tr key={index} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 text-gray-700 font-medium">
-                          {" "}
-                          {/* Testo scuro */}
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              tx.type === "purchase"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-blue-100 text-blue-800"
-                            }`}
-                          >
-                            {tx.type === "purchase"
-                              ? "Acquisto"
-                              : "Contribuzione"}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-gray-700">
-                          {" "}
-                          {/* Testo scuro */}
-                          {tx.timestamp.toLocaleDateString()}
-                        </td>
-                        <td className="py-3 px-4 text-gray-700 font-medium">
-                          {" "}
-                          {/* Testo scuro */}
-                          {tx.amount} Token
-                        </td>
-                        <td className="py-3 px-4 text-gray-700">
-                          {" "}
-                          {/* Testo scuro */}
-                          {tx.projectName || "Acquisto Token"}
-                        </td>
-                        <td className="py-3 px-4 text-gray-700">
-                          <a
-                            href={`https://sepolia.etherscan.io/tx/${tx.hash}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline truncate max-w-[150px] inline-block"
-                          >
-                            {tx.hash.substring(0, 10)}...
-                            {tx.hash.substring(tx.hash.length - 10)}
-                          </a>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+       <table className="w-full">
+  <thead>
+    <tr className="border-b bg-gray-100">
+      <th className="text-left py-3 px-4 text-gray-800 uppercase text-sm font-medium">
+        Tipo
+      </th>
+      <th className="text-left py-3 px-4 text-gray-800 uppercase text-sm font-medium">
+        Data
+      </th>
+      <th className="text-left py-3 px-4 text-gray-800 uppercase text-sm font-medium">
+        Quantità
+      </th>
+      <th className="text-left py-3 px-4 text-gray-800 uppercase text-sm font-medium">
+        Dettagli
+      </th>
+      <th className="text-left py-3 px-4 text-gray-800 uppercase text-sm font-medium">
+        Hash Transazione
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    {transactions.map((tx, index) => (
+      <tr key={index} className="border-b hover:bg-gray-50">
+        <td className="py-3 px-4 text-gray-700 font-medium">
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-medium ${
+              tx.type === "purchase"
+                ? "bg-green-100 text-green-800"
+                : "bg-blue-100 text-blue-800"
+            }`}
+          >
+            {tx.type === "purchase" ? "Acquisto" : "Contribuzione"}
+          </span>
+        </td>
+        <td className="py-3 px-4 text-gray-700">
+          {tx.timestamp.toLocaleDateString()}
+        </td>
+        <td className="py-3 px-4 text-gray-700 font-medium">
+          {tx.amount} Token
+        </td>
+        <td className="py-3 px-4 text-gray-700">
+          {tx.projectName || "Acquisto Token"}
+        </td>
+        <td className="py-3 px-4 text-gray-700">
+                  <a
+                    href={`https://sepolia.etherscan.io/tx/${tx.hash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline truncate max-w-[150px] inline-block"
+                  >
+                    {tx.hash.substring(0, 10)}...
+                    {tx.hash.substring(tx.hash.length - 10)}
+                  </a>
+                </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
               </div>
             )}
           </Card>

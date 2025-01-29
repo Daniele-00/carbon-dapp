@@ -52,7 +52,6 @@ export default function CalculatorPage() {
       setError("");
     } catch (err) {
       setError("Errore nella connessione al wallet");
-      console.error(err);
     } finally {
       setIsConnecting(false);
     }
@@ -76,8 +75,12 @@ export default function CalculatorPage() {
   
       setSuccessMessage("Token acquistati con successo! TX Hash: " + tx.hash);
     } catch (error: any) {
-      console.error(error);
-      setError("Errore nell'acquisto dei token: " + (error.message || "Errore sconosciuto"));
+     
+      if(error.code === 'ACTION_REJECTED') {
+        setError("Transazione annullata dall'utente");
+      } else {
+      setError("Errore nell'acquisto dei token: " + (error.message || "Errore sconosciuto")); 
+    }
     } finally {
       setIsConnecting(false);
     }
