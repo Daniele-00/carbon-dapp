@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Navbar from "@/components/navigation/Navbar";
 import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
-import { buyCarbon2DTokens, getContract } from "@/web3/contract";
+import { buyCarbon2DTokens } from "@/web3/contract";
 import { ethers } from "ethers";
 
 export default function CalculatorPage() {
