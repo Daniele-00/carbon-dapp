@@ -31,7 +31,7 @@ const Navbar: React.FC<NavbarProps> = ({
     { name: "Home", href: "/" },
     { name: "Calcola", href: "/calculator" },
     { name: "Marketplace", href: "/marketplace" },
-    { name: "I Tuoi Token", href: "/dashboard" },
+    { name: "Dashboard", href: "/dashboard" },
   ];
 
 

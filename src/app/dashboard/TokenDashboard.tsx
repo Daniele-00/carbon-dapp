@@ -23,8 +23,19 @@ interface ProjectCompensatedEvent extends ethers.EventLog {
   };
 }
 
+
+// Interfaccia per l'evento ProjectCompleted
+interface ProjectCompletedEvent extends ethers.EventLog {
+  args: ethers.Result & {
+    projectId: bigint;
+    creator: string;
+    amount: bigint;
+  };
+}
+
+
 interface Transaction {
-  type: "purchase" | "contribution";
+  type: "purchase" | "contribution" | "completion";
   timestamp: Date;
   amount: number;
   hash: string;
@@ -156,6 +167,10 @@ export default function DashboardPage() {
         contributionFilter
       )) as ProjectCompensatedEvent[];
 
+ // Carica gli eventi di completamento progetti
+ const completionFilter = contract.filters.ProjectCompleted(null, account);
+ const completionEvents = (await contract.queryFilter(completionFilter)) as ProjectCompletedEvent[];
+
       // Ottieni i timestamp dei blocchi per tutti gli eventi
       const mintTimestamps = await Promise.all(
         mintEvents.map((event) =>
@@ -167,6 +182,10 @@ export default function DashboardPage() {
         contributionEvents.map((event) =>
           event.blockNumber ? provider.getBlock(event.blockNumber) : null
         )
+      );
+
+      const completionTimestamps = await Promise.all(
+        completionEvents.map(event => event.blockNumber ? provider.getBlock(event.blockNumber) : null)
       );
 
       // Combina e ordina tutte le transazioni
@@ -190,6 +209,15 @@ export default function DashboardPage() {
           hash: event.transactionHash,
           projectName: `Progetto #${event.args.projectId.toString()}`,
         })),
+        ...completionEvents.map((event, index) => {   
+          return {
+            type: "completion" as const,
+            timestamp: completionTimestamps[index] ? new Date(Number(completionTimestamps[index]?.timestamp || 0) * 1000) : new Date(),
+            amount: event.args?.tokens ? Number(event.args.tokens) : 0,
+            hash: event.transactionHash,
+            projectName: `Progetto #${event.args.projectId.toString()}`,
+          };
+        }),
       ].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
       setTransactions(allTransactions);
@@ -322,10 +350,16 @@ export default function DashboardPage() {
             className={`px-2 py-1 rounded-full text-xs font-medium ${
               tx.type === "purchase"
                 ? "bg-green-100 text-green-800"
-                : "bg-blue-100 text-blue-800"
+                : tx.type === "contribution"
+                ? "bg-blue-100 text-blue-800"
+                : "bg-purple-100 text-purple-800"
             }`}
           >
-            {tx.type === "purchase" ? "Acquisto" : "Contribuzione"}
+            {tx.type === "purchase" 
+              ? "Acquisto" 
+              : tx.type === "contribution" 
+              ? "Contribuzione"
+              : "Completamento Progetto"}
           </span>
         </td>
         <td className="py-3 px-4 text-gray-700">
@@ -335,19 +369,20 @@ export default function DashboardPage() {
           {tx.amount} Token
         </td>
         <td className="py-3 px-4 text-gray-700">
-          {tx.projectName || "Acquisto Token"}
+          {tx.type === "completion" 
+            ? `Token ricevuti per ${tx.projectName}`
+            : tx.projectName || "Acquisto Token"}
         </td>
         <td className="py-3 px-4 text-gray-700">
-                  <a
-                    href={`https://sepolia.etherscan.io/tx/${tx.hash}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline truncate max-w-[150px] inline-block"
-                  >
-                    {tx.hash.substring(0, 10)}...
-                    {tx.hash.substring(tx.hash.length - 10)}
-                  </a>
-                </td>
+          <a
+            href={`https://sepolia.etherscan.io/tx/${tx.hash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline truncate max-w-[150px] inline-block"
+          >
+            {tx.hash.substring(0, 10)}...{tx.hash.substring(tx.hash.length - 10)}
+          </a>
+        </td>
       </tr>
     ))}
   </tbody>
