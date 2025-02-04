@@ -236,8 +236,7 @@ const ProjectsSection = () => {
         `Contribuzione di ${contributionAmount} token effettuata con successo`
       );
     } catch (error: any) {
-      console.error("Errore nella contribuzione:", error);
-      setError("Errore nella contribuzione: " + error.message);
+      setError("Errore nella contribuzione: Annullata" );
     } finally {
       setLoading(false);
     }
@@ -346,8 +345,7 @@ const ProjectsSection = () => {
       // Mostra messaggio di successo
       setSuccessMessage("Nuovo progetto creato con successo!");
     } catch (error: any) {
-      console.error("Errore nell'aggiunta del progetto:", error);
-      setError(`Errore nell'aggiunta del progetto: ${error.message}`);
+      setError("Errore nell'aggiunta del progetto");
     } finally {
       setLoading(false);
     }
@@ -536,6 +534,7 @@ const ProjectsSection = () => {
                 type="number"
                 placeholder="Token Richiesti"
                 value={newProject.tokens || ""}
+                min="1"
                 onChange={(e) => {
                   const tokenValue = Number(e.target.value);
                   setNewProject((prev) => ({

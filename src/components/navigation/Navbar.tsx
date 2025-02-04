@@ -148,11 +148,9 @@ const disconnectWallet = () => {
           {/* Logo */}
           <div className="flex items-center space-x-3">
           <div className="flex-shrink-0 w-15 h-15"> {/* Dimensioni fisse per il contenitore */}
-              <Lottie
-                animationData={animationData}
-                loop={true}
-                autoplay={true}
-                className="w-16 h-16" // Dimensioni dell'animazione
+             {/* Immagine del logo */}
+              <img src="/images/logo.jpg" alt="EcoChain Logo" 
+                className="w-14 h-14" // Dimensioni dell'animazione
                 style={{ borderRadius: '50%' }} // effetto rounded
               />
             </div>

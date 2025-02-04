@@ -153,6 +153,7 @@ export default function CalculatorPage() {
                     <input
                       type="number"
                       value={formData.electricity}
+                      min="0"
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
@@ -176,6 +177,7 @@ export default function CalculatorPage() {
                     <input
                       type="number"
                       value={formData.carKm}
+                       min="0"
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
@@ -199,6 +201,7 @@ export default function CalculatorPage() {
                     <input
                       type="number"
                       value={formData.flights}
+                       min="0"
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
@@ -222,6 +225,7 @@ export default function CalculatorPage() {
                     <input
                       type="number"
                       value={formData.meatConsumption}
+                       min="0"
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
