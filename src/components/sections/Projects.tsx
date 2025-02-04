@@ -236,7 +236,7 @@ const ProjectsSection = () => {
         `Contribuzione di ${contributionAmount} token effettuata con successo`
       );
     } catch (error: any) {
-      setError("Errore nella contribuzione: Annullata" );
+      setError("Errore nella contribuzione: Annullata");
     } finally {
       setLoading(false);
     }
