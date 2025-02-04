@@ -279,7 +279,7 @@ export default function CalculatorPage() {
                     Carbon2DToken Necessari
                   </h3>
                   <p className="text-4xl font-bold text-blue-800 mb-2">
-                    {result.tokens} C2DT
+                    {result.tokens} C2D
                   </p>
                   <p className="text-blue-600">
                     Token necessari per la compensazione della tua impronta
