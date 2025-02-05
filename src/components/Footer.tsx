@@ -2,10 +2,6 @@
 "use client";
 
 import React from "react";
-import Lottie from "lottie-react"; // Importa Lottie React
-
-// Importazione dell'animazione usando require
-const animationData = require('/public/animations/logo.json');
 
 const Footer = () => {
   const footerLinks = {
@@ -36,12 +32,10 @@ const Footer = () => {
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center space-x-3 mb-6">
             <div className="flex-shrink-0 w-15 h-15"> {/* Dimensioni fisse per il contenitore */}
-              <Lottie
-                animationData={animationData}
-                loop={true}
-                autoplay={true}
-                className="w-16 h-16"
-                style={{ borderRadius: '50%' }} //effetto rounded
+             {/* Immagine del logo */}
+              <img src="/images/logo.jpg" alt="EcoChain Logo" 
+                className="w-14 h-14" // Dimensioni dell'animazione
+                style={{ borderRadius: '50%' }} // effetto rounded
               />
             </div>
               <span className="text-xl font-bold">EcoChain</span>

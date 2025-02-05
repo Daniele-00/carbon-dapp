@@ -1,11 +1,7 @@
 // Componente Navbar per la navigazione
 "use client";
 import React, { useState, useEffect } from "react";
-import Lottie from "lottie-react"; // Importa Lottie React
 import { ethers } from "ethers";
-
-// Importazione dell'animazione usando require
-const animationData = require('/public/animations/logo.json');
 
 interface NavbarProps {
   isScrolled: boolean;

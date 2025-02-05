@@ -15,6 +15,7 @@ interface Project {
 // Funzione per caricare i progetti da localStorage
 const loadProjects = (): Project[] => {
   try {
+   
     const savedProjects = localStorage.getItem("carbonProjects");
     return savedProjects
       ? JSON.parse(savedProjects)
@@ -23,24 +24,24 @@ const loadProjects = (): Project[] => {
             id: 1,
             title: "Riforestazione Amazzonica",
             description: "Supporta la riforestazione della foresta amazzonica",
-            tokens: 500,
-            co2: "50000kg",
+            tokens: 5,
+            co2: "500",
             location: "America Del Sud",
           },
           {
             id: 2,
             title: "Energia Solare in Africa",
             description: "Installa pannelli solari in comunità rurali africane",
-            tokens: 300,
-            co2: "30000kg",
+            tokens: 3,
+            co2: "300",
             location: "Africa",
           },
           {
             id: 3,
             title: "Turbine Eoliche",
             description: "Sviluppo di un parco eolico per energia pulita",
-            tokens: 150,
-            co2: "15000kg",
+            tokens: 8,
+            co2: "800",
             location: "Europa",
           },
         ];
@@ -450,7 +451,7 @@ const ProjectsSection = () => {
                       Token Richiesti
                     </div>
                     <div className="text-lg font-semibold text-green-800">
-                      {project.tokens} CRBN
+                      {project.tokens} C2D
                     </div>
                   </div>
                   <div className="bg-green-50 p-3 rounded-lg">
