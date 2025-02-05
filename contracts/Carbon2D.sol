@@ -87,6 +87,18 @@ contract Carbon2D is ERC20, Ownable {
         emit ProjectCreated(projectCounter, name, price);
     }
 
+
+    // Funzione per creare un nuovo progetto (pubblica)
+    function createProject(
+        string memory name,
+        uint256 requiredTokens,
+        uint256 co2Reduction,
+        uint256 price
+    ) public {
+        _createProject(name, requiredTokens, co2Reduction, price);
+    }
+
+
     /**
      * @dev Permette agli utenti di acquistare token inviando ETH
      * @param tokenAmount Numero di token da acquistare

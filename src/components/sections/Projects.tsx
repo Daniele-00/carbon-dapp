@@ -12,45 +12,6 @@ interface Project {
   location: string;
 }
 
-// Funzione per caricare i progetti da localStorage
-const loadProjects = (): Project[] => {
-  try {
-   
-    const savedProjects = localStorage.getItem("carbonProjects");
-    return savedProjects
-      ? JSON.parse(savedProjects)
-      : [
-          {
-            id: 1,
-            title: "Riforestazione Amazzonica",
-            description: "Supporta la riforestazione della foresta amazzonica",
-            tokens: 5,
-            co2: "500",
-            location: "America Del Sud",
-          },
-          {
-            id: 2,
-            title: "Energia Solare in Africa",
-            description: "Installa pannelli solari in comunità rurali africane",
-            tokens: 3,
-            co2: "300",
-            location: "Africa",
-          },
-          {
-            id: 3,
-            title: "Turbine Eoliche",
-            description: "Sviluppo di un parco eolico per energia pulita",
-            tokens: 8,
-            co2: "800",
-            location: "Europa",
-          },
-        ];
-  } catch (error) {
-    console.error("Errore nel caricare i progetti:", error);
-    return [];
-  }
-};
-
 const ProjectsSection = () => {
   const [contributionAmount, setContributionAmount] = useState(0);
   const [walletConnected, setWalletConnected] = useState(false);
@@ -65,19 +26,65 @@ const ProjectsSection = () => {
   const [currentProjectIndex, setCurrentProjectIndex] = useState(0);
   const [isAddingProject, setIsAddingProject] = useState(false);
   const [newProject, setNewProject] = useState<Partial<Project>>({});
-  const [projects, setProjects] = useState<Project[]>(loadProjects());
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  // Carica i progetti da localStorage solo lato client
+  useEffect(() => {
+    // Verifica se siamo sul client per evitare errori di hydration
+    if (typeof window !== 'undefined') {
+      const savedProjects = localStorage.getItem("carbonProjects");
+      
+      if (savedProjects) {
+        // Se ci sono progetti salvati, usa quelli
+        setProjects(JSON.parse(savedProjects));
+      } else {
+        // Se non ci sono progetti, usa quelli di default e salvali
+        const defaultProjects = [
+          {
+            id: 1,
+            title: "Riforestazione Amazzonica",
+            description: "Supporta la riforestazione della foresta amazzonica",
+            tokens: 5,
+            co2: "500kg",
+            location: "America Del Sud",
+          },
+          {
+            id: 2,
+            title: "Energia Solare in Africa",
+            description: "Installa pannelli solari in comunità rurali africane",
+            tokens: 3,
+            co2: "300kg",
+            location: "Africa",
+          },
+          {
+            id: 3,
+            title: "Turbine Eoliche",
+            description: "Sviluppo di un parco eolico per energia pulita",
+            tokens: 8,
+            co2: "800kg",
+            location: "Europa",
+          }
+        ];
+        
+        localStorage.setItem("carbonProjects", JSON.stringify(defaultProjects));
+        setProjects(defaultProjects);
+      }
+    }
+  }, []); 
+
+  // Salvo i progetti in localStorage quando cambiano
+  useEffect(() => {
+    if (projects.length > 0) {
+      localStorage.setItem("carbonProjects", JSON.stringify(projects));
+    }
+  }, [projects]);
 
   const visibleProjects = projects.slice(
     currentProjectIndex,
     currentProjectIndex + 3
   );
 
-  // Salva i progetti in localStorage quando cambiano
-  useEffect(() => {
-    localStorage.setItem("carbonProjects", JSON.stringify(projects));
-  }, [projects]);
-
-  // Calcola i token rimanenti necessari per completare il progetto
+  // Calcolo i token rimanenti necessari per completare il progetto
   const calculateRemainingTokens = (
     project: Project,
     progress: number | bigint
@@ -88,12 +95,12 @@ const ProjectsSection = () => {
     return Math.max(0, Math.floor(project.tokens - totalContributed));
   };
 
-  // Verifica connessione wallet al caricamento
+  // Verifica dlla connessione wallet al caricamento
   useEffect(() => {
     checkWalletConnection();
   }, []);
 
-  // Ascolta i cambiamenti dell'account
+  // Cambiamenti dell'account
   useEffect(() => {
     if (window.ethereum) {
       window.ethereum.on("accountsChanged", handleAccountsChanged);
@@ -222,7 +229,7 @@ const ProjectsSection = () => {
         contributionAmount
       );
 
-      // Rimuovi .wait() e usa direttamente result
+      // Aggiorna il progresso del progetto
       const updatedProgress = await contract.getProjectProgress(
         selectedProject.id
       );
@@ -243,7 +250,7 @@ const ProjectsSection = () => {
     }
   };
 
-  // Aggiungi nel componente
+ 
   const handleRemoveProject = async (projectId: number) => {
     if (!walletConnected) {
       await connectWallet();
@@ -255,7 +262,7 @@ const ProjectsSection = () => {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const contract = await getContract();
 
-      // Chiama la funzione di rimozione nel contratto
+      //Rrimozione nel contratto
       const tx = await contract.removeProject(projectId);
       await tx.wait();
 

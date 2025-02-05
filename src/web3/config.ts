@@ -1,4 +1,4 @@
-export const CONTRACT_ADDRESS = "0x52e396c3793b65c7e19a7fbb06255e828c235ff5";
+export const CONTRACT_ADDRESS = "0x8eb12975bb6fd2805f795977a91f5d8d3f62e590";
 export const CONTRACT_ABI =[
 	{
 		"inputs": [],
@@ -423,6 +423,34 @@ export const CONTRACT_ABI =[
 			}
 		],
 		"name": "compensateProject",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "requiredTokens",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "co2Reduction",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "price",
+				"type": "uint256"
+			}
+		],
+		"name": "createProject",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
