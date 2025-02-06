@@ -1,4 +1,4 @@
-export const CONTRACT_ADDRESS = "0x0bc12428775d58947c38020f7ac3b45a6ede6bb9";
+export const CONTRACT_ADDRESS = "0xdd003c297a7e8f1e70bf723871072ff3a762abfd";
 export const CONTRACT_ABI =[
 	{
 		"inputs": [],
@@ -221,12 +221,6 @@ export const CONTRACT_ABI =[
 				"internalType": "string",
 				"name": "name",
 				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "price",
-				"type": "uint256"
 			}
 		],
 		"name": "ProjectCreated",
@@ -443,11 +437,6 @@ export const CONTRACT_ABI =[
 				"internalType": "uint256",
 				"name": "co2Reduction",
 				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "price",
-				"type": "uint256"
 			}
 		],
 		"name": "createProject",
@@ -549,11 +538,6 @@ export const CONTRACT_ABI =[
 			{
 				"internalType": "uint256",
 				"name": "co2Reduction",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "price",
 				"type": "uint256"
 			},
 			{

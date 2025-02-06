@@ -15,7 +15,6 @@ contract Carbon2D is ERC20, Ownable {
         string name;                // Nome del progetto
         uint256 requiredTokens;     // Numero di token necessari per completare il progetto
         uint256 co2Reduction;       // Quantità di CO2 che il progetto ridurrà (in kg)
-        uint256 price;             // Prezzo del progetto
         bool active;               // Stato del progetto (attivo/completato)
         uint256 totalContributed;  // Totale dei token già contribuiti
         address projectOwner;      // Indirizzo del creatore del progetto
@@ -33,7 +32,7 @@ contract Carbon2D is ERC20, Ownable {
     }
 
     // Prezzo fisso per ogni token (attualmente impostato a 0)
-    uint256 public constant TOKEN_PRICE = 0.0000000000000000;
+    uint256 public constant TOKEN_PRICE = 0.0125 ether;  
 
     // Mappature per memorizzare i dati degli utenti e dei progetti
     mapping(address => CarbonData) public userCarbonData;                    // Dati di carbonio per utente
@@ -44,7 +43,7 @@ contract Carbon2D is ERC20, Ownable {
 
     // Eventi emessi dal contratto per tracciare le azioni principali
     event TokensMinted(address indexed recipient, uint256 amount, uint256 emissions);
-    event ProjectCreated(uint256 projectId, string name, uint256 price);
+    event ProjectCreated(uint256 projectId, string name);
     event ProjectCompensated(uint256 projectId, address indexed user, uint256 tokens);
     event ProjectCompleted(uint256 projectId, address indexed projectOwner, uint256 tokens);
 
@@ -56,9 +55,9 @@ contract Carbon2D is ERC20, Ownable {
         projectCounter = 0;
         totalMintedTokens = 0;
         // Crea i progetti iniziali con valori predefiniti
-        _createProject("Riforestazione Amazzonica", 5, 500, 62500000000000000);
-        _createProject("Energia Solare in Africa", 3, 300, 0.0000000000000000);
-        _createProject("Turbine Eoliche", 8, 800, 0.00000000000000);
+        _createProject("Riforestazione Amazzonica", 5, 500);
+        _createProject("Energia Solare in Africa", 3, 300);
+        _createProject("Turbine Eoliche", 8, 800);
     }
 
     /**
@@ -66,25 +65,22 @@ contract Carbon2D is ERC20, Ownable {
      * @param name Nome del progetto
      * @param requiredTokens Token necessari per completarlo
      * @param co2Reduction Riduzione di CO2 prevista
-     * @param price Prezzo del progetto
      */
     function _createProject(
         string memory name,
         uint256 requiredTokens,
-        uint256 co2Reduction,
-        uint256 price
+        uint256 co2Reduction
     ) internal {
         projectCounter++;
         projects[projectCounter] = CompensationProject(
             name,
             requiredTokens,
             co2Reduction,
-            price,
             true,
             0,
             msg.sender
         );
-        emit ProjectCreated(projectCounter, name, price);
+        emit ProjectCreated(projectCounter, name);
     }
 
 
@@ -92,10 +88,9 @@ contract Carbon2D is ERC20, Ownable {
     function createProject(
         string memory name,
         uint256 requiredTokens,
-        uint256 co2Reduction,
-        uint256 price
+        uint256 co2Reduction
     ) public {
-        _createProject(name, requiredTokens, co2Reduction, price);
+        _createProject(name, requiredTokens, co2Reduction);
     }
 
 

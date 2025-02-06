@@ -319,7 +319,6 @@ const ProjectsSection = () => {
         newProject.title,
         newProject.tokens,
         parseInt(newProject.co2.replace("kg", "") || "0"), // Rimuovi 'kg' se presente
-        ethers.parseUnits("0.1", "ether") // Prezzo di esempio
       );
 
       const receipt = await tx.wait();
