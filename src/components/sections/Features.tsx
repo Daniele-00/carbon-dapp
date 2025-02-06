@@ -28,7 +28,7 @@ const FeaturesSection = () => {
     <section className="py-20 bg-gradient-to-b from-white to-green-50">
       <div className="max-w-7xl mx-auto px-4">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div id="features-section" className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl lg:text-4xl font-bold text-green-800 mb-6">
             Come Funziona
           </h2>

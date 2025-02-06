@@ -24,7 +24,7 @@ const CTASection = () => {
 
       <div className="max-w-7xl mx-auto px-4 relative">
         <div className="text-center space-y-8">
-          <h2 className="text-3xl lg:text-4xl font-bold text-white">
+          <h2 id="cta-section" className="text-3xl lg:text-4xl font-bold text-white">
             Pronto a Fare la Differenza?
           </h2>
           
