@@ -1,4 +1,4 @@
-export const CONTRACT_ADDRESS = "0x518d0c54e9bd7cab285ef702f718761dc1d7ca90";
+export const CONTRACT_ADDRESS = "0x7a529c0b8ef9050616c17a5cfd37414ce7a7bfee";
 export const CONTRACT_ABI =[
 	{
 		"inputs": [],
@@ -583,19 +583,6 @@ export const CONTRACT_ABI =[
 			}
 		],
 		"name": "recordEmissions",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "projectId",
-				"type": "uint256"
-			}
-		],
-		"name": "removeProject",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"

@@ -203,14 +203,4 @@ contract Carbon2D is ERC20, Ownable {
         payable(owner()).transfer(address(this).balance);
     }
 
-    /**
-     * @dev Rimuove un progetto dal sistema
-     */
-    function removeProject(uint256 projectId) public {
-        delete projects[projectId];
-
-        if (projectId == projectCounter) {
-            projectCounter--;
-        }
-    }
 }
