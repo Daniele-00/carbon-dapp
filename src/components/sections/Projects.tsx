@@ -497,14 +497,7 @@ const ProjectsSection = () => {
                   </button>
                 </div>
 
-                <div className="p-4 flex justify-between items-center">
-                  <button
-                    onClick={() => handleRemoveProject(project.id)}
-                    className="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600"
-                  >
-                    Elimina Progetto
-                  </button>
-                </div>
+               
               </div>
             </div>
           ))}
