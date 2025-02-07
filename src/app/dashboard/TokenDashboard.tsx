@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Navbar from "@/components/navigation/Navbar";
-import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { ethers } from "ethers";
 import { getContract } from "@/web3/contract";
@@ -23,7 +22,6 @@ interface ProjectCompensatedEvent extends ethers.EventLog {
   };
 }
 
-
 // Interfaccia per l'evento ProjectCompleted
 interface ProjectCompletedEvent extends ethers.EventLog {
   args: ethers.Result & {
@@ -33,9 +31,27 @@ interface ProjectCompletedEvent extends ethers.EventLog {
   };
 }
 
+interface ProjectCreatedEvent extends ethers.EventLog {
+  args: ethers.Result & {
+    projectId: bigint;
+    name: string;
+    price: bigint;
+  };
+}
+
+// Aggiungi questa interfaccia all'inizio del file, dopo le altre interfacce
+interface ProjectStructure {
+  name: string;
+  requiredTokens: bigint;
+  co2Reduction: bigint;
+  price: bigint;
+  active: boolean;
+  totalContributed: bigint;
+  projectOwner: string;
+}
 
 interface Transaction {
-  type: "purchase" | "contribution" | "completion";
+  type: "purchase" | "contribution" | "completion" | "creation";
   timestamp: Date;
   amount: number;
   hash: string;
@@ -61,6 +77,13 @@ export default function DashboardPage() {
     projectsContributed: 0,
   });
   const [loading, setLoading] = useState(true);
+
+  const [activeFilters, setActiveFilters] = useState<string[]>([
+    "purchase",
+    "contribution",
+    "completion",
+    "creation",
+  ]);
 
   // Gestione scroll
   useEffect(() => {
@@ -167,9 +190,23 @@ export default function DashboardPage() {
         contributionFilter
       )) as ProjectCompensatedEvent[];
 
- // Carica gli eventi di completamento progetti
- const completionFilter = contract.filters.ProjectCompleted(null, account);
- const completionEvents = (await contract.queryFilter(completionFilter)) as ProjectCompletedEvent[];
+      // Carica gli eventi di completamento progetti
+      const completionFilter = contract.filters.ProjectCompleted(null, account);
+      const completionEvents = (await contract.queryFilter(
+        completionFilter
+      )) as ProjectCompletedEvent[];
+
+      // Carica gli eventi di creazione progetti
+      const creationFilter = contract.filters.ProjectCreated(null, null);
+      const creationEvents = (await contract.queryFilter(
+        creationFilter
+      )) as ProjectCreatedEvent[];
+
+      const creationTimestamps = await Promise.all(
+        creationEvents.map((event) =>
+          event.blockNumber ? provider.getBlock(event.blockNumber) : null
+        )
+      );
 
       // Ottieni i timestamp dei blocchi per tutti gli eventi
       const mintTimestamps = await Promise.all(
@@ -185,7 +222,29 @@ export default function DashboardPage() {
       );
 
       const completionTimestamps = await Promise.all(
-        completionEvents.map(event => event.blockNumber ? provider.getBlock(event.blockNumber) : null)
+        completionEvents.map((event) =>
+          event.blockNumber ? provider.getBlock(event.blockNumber) : null
+        )
+      );
+
+      const creationTransactions = await Promise.all(
+        creationEvents.map(async (event, index) => {
+          const projectData = (await contract.projects(
+            event.args.projectId
+          )) as ProjectStructure;
+          return {
+            type: "creation" as const,
+            timestamp: creationTimestamps[index]
+              ? new Date(
+                  Number(creationTimestamps[index]?.timestamp || 0) * 1000
+                )
+              : new Date(),
+            amount: Number(projectData.requiredTokens),
+            hash: event.transactionHash,
+            projectName:
+              "Creazione Progetto #" + event.args.projectId.toString(),
+          };
+        })
       );
 
       // Combina e ordina tutte le transazioni
@@ -207,17 +266,23 @@ export default function DashboardPage() {
             : new Date(),
           amount: event.args?.tokens ? Number(event.args.tokens) : 0,
           hash: event.transactionHash,
-          projectName: `Progetto #${event.args.projectId.toString()}`,
+          projectName:
+            "Contribuzione Progetto #" + event.args.projectId.toString(),
         })),
-        ...completionEvents.map((event, index) => {   
+        ...completionEvents.map((event, index) => {
           return {
             type: "completion" as const,
-            timestamp: completionTimestamps[index] ? new Date(Number(completionTimestamps[index]?.timestamp || 0) * 1000) : new Date(),
+            timestamp: completionTimestamps[index]
+              ? new Date(
+                  Number(completionTimestamps[index]?.timestamp || 0) * 1000
+                )
+              : new Date(),
             amount: event.args?.tokens ? Number(event.args.tokens) : 0,
             hash: event.transactionHash,
-            projectName: `Progetto #${event.args.projectId.toString()}`,
+            projectName: "Progetto #" + event.args.projectId.toString(),
           };
         }),
+        ...creationTransactions,
       ].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
       setTransactions(allTransactions);
@@ -263,7 +328,6 @@ export default function DashboardPage() {
             </button>
           </div>
         </div>
-        <Footer />
       </main>
     );
   }
@@ -315,78 +379,201 @@ export default function DashboardPage() {
             <h2 className="text-2xl font-bold text-green-800 mb-6">
               Storico Transazioni
             </h2>
-
+            <div className="mb-6 bg-white/80 backdrop-blur-sm p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-green-800 mb-3">
+                Filtra Transazioni
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() =>
+                    setActiveFilters([
+                      "purchase",
+                      "contribution",
+                      "completion",
+                      "creation",
+                    ])
+                  }
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 
+          ${
+            activeFilters.length === 4
+              ? "bg-green-500 text-white"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+          }`}
+                >
+                  Tutte
+                </button>
+                <button
+                  onClick={() => {
+                    const isActive = activeFilters.includes("purchase");
+                    setActiveFilters((prev) =>
+                      isActive
+                        ? prev.filter((f) => f !== "purchase")
+                        : [...prev, "purchase"]
+                    );
+                  }}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 
+          ${
+            activeFilters.includes("purchase")
+              ? "bg-green-100 text-green-800 border-2 border-green-500"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+          }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    Acquisti
+                  </span>
+                </button>
+                <button
+                  onClick={() => {
+                    const isActive = activeFilters.includes("contribution");
+                    setActiveFilters((prev) =>
+                      isActive
+                        ? prev.filter((f) => f !== "contribution")
+                        : [...prev, "contribution"]
+                    );
+                  }}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 
+          ${
+            activeFilters.includes("contribution")
+              ? "bg-blue-100 text-blue-800 border-2 border-blue-500"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+          }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                    Contribuzioni
+                  </span>
+                </button>
+                <button
+                  onClick={() => {
+                    const isActive = activeFilters.includes("completion");
+                    setActiveFilters((prev) =>
+                      isActive
+                        ? prev.filter((f) => f !== "completion")
+                        : [...prev, "completion"]
+                    );
+                  }}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 
+          ${
+            activeFilters.includes("completion")
+              ? "bg-purple-100 text-purple-800 border-2 border-purple-500"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+          }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                    Completamenti
+                  </span>
+                </button>
+                <button
+                  onClick={() => {
+                    const isActive = activeFilters.includes("creation");
+                    setActiveFilters((prev) =>
+                      isActive
+                        ? prev.filter((f) => f !== "creation")
+                        : [...prev, "creation"]
+                    );
+                  }}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 
+          ${
+            activeFilters.includes("creation")
+              ? "bg-yellow-100 text-yellow-800 border-2 border-yellow-500"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+          }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                    Creazioni
+                  </span>
+                </button>
+              </div>
+            </div>
+            <div className="text-sm text-gray-600 mb-4">
+              Visualizzazione di{" "}
+              {
+                transactions.filter((tx) => activeFilters.includes(tx.type))
+                  .length
+              }{" "}
+              transazioni su {transactions.length} totali
+            </div>
             {loading ? (
               <div className="flex justify-center py-8">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
               </div>
             ) : (
               <div className="overflow-x-auto">
-       <table className="w-full">
-  <thead>
-    <tr className="border-b bg-gray-100">
-      <th className="text-left py-3 px-4 text-gray-800 uppercase text-sm font-medium">
-        Tipo
-      </th>
-      <th className="text-left py-3 px-4 text-gray-800 uppercase text-sm font-medium">
-        Data
-      </th>
-      <th className="text-left py-3 px-4 text-gray-800 uppercase text-sm font-medium">
-        Quantità
-      </th>
-      <th className="text-left py-3 px-4 text-gray-800 uppercase text-sm font-medium">
-        Dettagli
-      </th>
-      <th className="text-left py-3 px-4 text-gray-800 uppercase text-sm font-medium">
-        Hash Transazione
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    {transactions.map((tx, index) => (
-      <tr key={index} className="border-b hover:bg-gray-50">
-        <td className="py-3 px-4 text-gray-700 font-medium">
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-medium ${
-              tx.type === "purchase"
-                ? "bg-green-100 text-green-800"
-                : tx.type === "contribution"
-                ? "bg-blue-100 text-blue-800"
-                : "bg-purple-100 text-purple-800"
-            }`}
-          >
-            {tx.type === "purchase" 
-              ? "Acquisto" 
-              : tx.type === "contribution" 
-              ? "Contribuzione"
-              : "Completamento Progetto"}
-          </span>
-        </td>
-        <td className="py-3 px-4 text-gray-700">
-          {tx.timestamp.toLocaleDateString()}
-        </td>
-        <td className="py-3 px-4 text-gray-700 font-medium">
-          {tx.amount} Token
-        </td>
-        <td className="py-3 px-4 text-gray-700">
-          {tx.type === "completion" 
-            ? `Token ricevuti per ${tx.projectName}`
-            : tx.projectName || "Acquisto Token"}
-        </td>
-        <td className="py-3 px-4 text-gray-700">
-          <a
-            href={`https://sepolia.etherscan.io/tx/${tx.hash}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 hover:underline truncate max-w-[150px] inline-block"
-          >
-            {tx.hash.substring(0, 10)}...{tx.hash.substring(tx.hash.length - 10)}
-          </a>
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b bg-gray-100">
+                      <th className="text-left py-3 px-4 text-gray-800 uppercase text-sm font-medium">
+                        Tipo
+                      </th>
+                      <th className="text-left py-3 px-4 text-gray-800 uppercase text-sm font-medium">
+                        Data
+                      </th>
+                      <th className="text-left py-3 px-4 text-gray-800 uppercase text-sm font-medium">
+                        Quantità
+                      </th>
+                      <th className="text-left py-3 px-4 text-gray-800 uppercase text-sm font-medium">
+                        Dettagli
+                      </th>
+                      <th className="text-left py-3 px-4 text-gray-800 uppercase text-sm font-medium">
+                        Hash Transazione
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {transactions
+                      .filter((tx) => activeFilters.includes(tx.type))
+                      .map((tx, index) => (
+                        <tr key={index} className="border-b hover:bg-gray-50">
+                          <td className="py-3 px-4 text-gray-700 font-medium">
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                tx.type === "purchase"
+                                  ? "bg-green-100 text-green-800"
+                                  : tx.type === "contribution"
+                                  ? "bg-blue-100 text-blue-800"
+                                  : tx.type === "completion"
+                                  ? "bg-purple-100 text-purple-800"
+                                  : "bg-yellow-100 text-yellow-800"
+                              }`}
+                            >
+                              {tx.type === "purchase"
+                                ? "Acquisto"
+                                : tx.type === "contribution"
+                                ? "Contribuzione"
+                                : tx.type === "completion"
+                                ? "Completamento Progetto"
+                                : "Creazione Progetto"}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-gray-700">
+                            {tx.timestamp.toLocaleDateString()}
+                          </td>
+                          <td className="py-3 px-4 text-gray-700 font-medium">
+                            {tx.amount} Token
+                          </td>
+                          <td className="py-3 px-4 text-gray-700">
+                            {tx.type === "completion"
+                              ? `Token ricevuti per ${tx.projectName}`
+                              : tx.projectName || "Acquisto Token"}
+                          </td>
+                          <td className="py-3 px-4 text-gray-700">
+                            <a
+                              href={`https://sepolia.etherscan.io/tx/${tx.hash}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline truncate max-w-[150px] inline-block"
+                            >
+                              {tx.hash.substring(0, 10)}...
+                              {tx.hash.substring(tx.hash.length - 10)}
+                            </a>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </Card>

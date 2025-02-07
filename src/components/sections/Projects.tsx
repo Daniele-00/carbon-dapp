@@ -250,33 +250,7 @@ const ProjectsSection = () => {
     }
   };
 
- 
-  const handleRemoveProject = async (projectId: number) => {
-    if (!walletConnected) {
-      await connectWallet();
-      return;
-    }
 
-    try {
-      setLoading(true);
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const contract = await getContract();
-
-      //Rrimozione nel contratto
-      const tx = await contract.removeProject(projectId);
-      await tx.wait();
-
-      // Rimuovi il progetto localmente
-      setProjects((prev) => prev.filter((p) => p.id !== projectId));
-
-      alert("Progetto eliminato con successo");
-    } catch (error: any) {
-      console.error("Errore nell'eliminazione del progetto:", error);
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleAddProject = async () => {
     // Controlla se il wallet è connesso
@@ -319,7 +293,6 @@ const ProjectsSection = () => {
         newProject.title,
         newProject.tokens,
         parseInt(newProject.co2.replace("kg", "") || "0"), // Rimuovi 'kg' se presente
-        ethers.parseUnits("0.1", "ether") // Prezzo di esempio
       );
 
       const receipt = await tx.wait();
@@ -498,14 +471,7 @@ const ProjectsSection = () => {
                   </button>
                 </div>
 
-                <div className="p-4 flex justify-between items-center">
-                  <button
-                    onClick={() => handleRemoveProject(project.id)}
-                    className="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600"
-                  >
-                    Elimina Progetto
-                  </button>
-                </div>
+               
               </div>
             </div>
           ))}

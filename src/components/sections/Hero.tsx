@@ -29,10 +29,13 @@ const HeroSection = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <button className="px-8 py-4 bg-green-500 text-white rounded-full font-medium hover:bg-green-600 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
+              <button className="px-8 py-4 bg-green-500 text-white rounded-full font-medium hover:bg-green-600 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
+              onClick={() => document.getElementById('cta-section')?.scrollIntoView({ behavior: 'smooth' })}>
                 Inizia Ora
               </button>
-              <button className="px-8 py-4 border-2 border-green-500 text-green-600 rounded-full font-medium hover:bg-green-50 transition-all duration-200">
+              <button className="px-8 py-4 border-2 border-green-500 text-green-600 rounded-full font-medium hover:bg-green-50 transition-all duration-200"
+                onClick={() => document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' })}>
+            
                 Scopri di più
               </button>
             </div>

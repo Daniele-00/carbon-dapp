@@ -1,4 +1,4 @@
-export const CONTRACT_ADDRESS = "0x8eb12975bb6fd2805f795977a91f5d8d3f62e590";
+export const CONTRACT_ADDRESS = "0x7a529c0b8ef9050616c17a5cfd37414ce7a7bfee";
 export const CONTRACT_ABI =[
 	{
 		"inputs": [],
@@ -221,12 +221,6 @@ export const CONTRACT_ABI =[
 				"internalType": "string",
 				"name": "name",
 				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "price",
-				"type": "uint256"
 			}
 		],
 		"name": "ProjectCreated",
@@ -443,11 +437,6 @@ export const CONTRACT_ABI =[
 				"internalType": "uint256",
 				"name": "co2Reduction",
 				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "price",
-				"type": "uint256"
 			}
 		],
 		"name": "createProject",
@@ -552,11 +541,6 @@ export const CONTRACT_ABI =[
 				"type": "uint256"
 			},
 			{
-				"internalType": "uint256",
-				"name": "price",
-				"type": "uint256"
-			},
-			{
 				"internalType": "bool",
 				"name": "active",
 				"type": "bool"
@@ -599,19 +583,6 @@ export const CONTRACT_ABI =[
 			}
 		],
 		"name": "recordEmissions",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "projectId",
-				"type": "uint256"
-			}
-		],
-		"name": "removeProject",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
