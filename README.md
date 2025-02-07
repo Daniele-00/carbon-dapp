@@ -8,15 +8,14 @@ Prima di iniziare, assicurati di avere installato:
 
 - Node.js (versione 20.12.2)
 - npm (Node Package Manager)
-- MetaMask o un altro wallet Ethereum nel browser
-- Un account sulla Sepolia TestNet con alcuni ETH di test
+- MetaMask 
 
 ## Configurazione
 
 1. Clona il repository:
 ```bash
-git clone [url-del-repository]
-cd carbon2d
+git clone https://github.com/Daniele-00/carbon-dapp.git
+cd carbon-dapp
 ```
 
 2. Installa le dipendenze:
@@ -24,47 +23,32 @@ cd carbon2d
 npm install
 ```
 
-3. Configura il wallet:
+## Esecuzione su Sepolia TestNet (Consigliato)
+
+1. Configura MetaMask per Sepolia:
 - Installa l'estensione MetaMask nel tuo browser
-- Connettiti alla Sepolia TestNet
-- Assicurati di avere degli ETH di test (puoi ottenerli da un faucet Sepolia)
+- Seleziona la rete "Sepolia Test Network" da MetaMask
+- Ottieni ETH di test da un faucet Sepolia (https://cloud.google.com/application/web3/faucet/ethereum/sepolia)
 
-## Avvio del Progetto
+2. Deploy dello Smart Contract:
+- Vai su [Remix IDE](https://remix.ethereum.org)
+- Importa il file dello smart contract
+- Seleziona la versione del compilatore 0.8.26
+- Seleziona l'ambiente "Injected Provider - MetaMask"
+- Assicurati di essere connesso alla rete Sepolia in MetaMask
+- Compila e deploya il contratto
+- Copia l'ABI e l'indirizzo del contratto deployato e aggiornali in `web3/config.js`
 
-1. Avvia il server di sviluppo:
+3. Avvia l'applicazione:
 ```bash
 npm run dev
 ```
 
-2. Apri [http://localhost:3000](http://localhost:3000) nel tuo browser
+4. Apri [http://localhost:3000](http://localhost:3000) nel tuo browser
 
-## Struttura del Progetto
+## Esecuzione su Rete Locale (Alternativa)
 
-- `app/` - Contiene le pagine principali dell'applicazione
-- `components/` - Componenti React riutilizzabili
-- `web3/` - Configurazione e funzioni per l'interazione con la blockchain
-- `lib/` - Utility e funzioni di supporto
-
-## Funzionalità Principali
-
-- Calcolo dell'impronta di carbonio
-- Acquisto di token C2D
-- Creazione e gestione di progetti di compensazione
-- Contribuzione a progetti esistenti
-- Dashboard per il monitoraggio delle attività
-
-## Note Tecniche
-
-- Framework: Next.js
-- Linguaggio: TSX (TypeScript + JSX)
-- Styling: Tailwind CSS
-- Blockchain: Ethereum (Sepolia TestNet)
-- Smart Contract: Solidity
-- Web3 Library: ethers.js
-
-## Test con Ganache (Rete Locale)
-
-Se desideri testare l'applicazione su una blockchain locale:
+Se preferisci testare l'applicazione su una blockchain locale:
 
 1. Installa e avvia Ganache:
 ```bash
@@ -87,10 +71,38 @@ ganache
 - Incolla la chiave privata
 
 4. Deploy dello Smart Contract:
-- Assicurati di essere connesso alla rete Ganache
-- Esegui il deploy dello smart contract sulla rete locale:
+- Vai su [Remix IDE](https://remix.ethereum.org)
+- Importa il file dello smart contract
+- Seleziona la versione del compilatore 0.8.22
+- Seleziona l'ambiente "Injected Provider - MetaMask"
+- Assicurati di essere connesso alla rete Ganache in MetaMask
+- Compila e deploya il contratto
+- Copia l'ABI e l'indirizzo del contratto deployato e aggiornali in `web3/config.js`
+
+5. Avvia l'applicazione:
 ```bash
-# Comando per il deploy (personalizza in base al tuo setup)
-npx hardhat run scripts/deploy.js --network localhost
+npm run dev
 ```
-- Aggiorna l'indirizzo del contratto in `web3/config.js`
+
+## Struttura del Progetto
+
+- `app/` - Contiene le pagine principali dell'applicazione
+- `components/` - Componenti React riutilizzabili
+- `web3/` - Configurazione e funzioni per l'interazione con la blockchain
+
+## Funzionalità Principali
+
+- Calcolo dell'impronta di carbonio
+- Acquisto di token C2D
+- Creazione e gestione di progetti di compensazione
+- Contribuzione a progetti esistenti
+- Dashboard per il monitoraggio delle attività
+
+## Note Tecniche
+
+- Framework: Next.js
+- Linguaggio: TSX (TypeScript + JSX)
+- Styling: Tailwind CSS
+- Blockchain: Ethereum (Sepolia TestNet o rete locale)
+- Smart Contract: Solidity
+- Web3 Library: ethers.js
