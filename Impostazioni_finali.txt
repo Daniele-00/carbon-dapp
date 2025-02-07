@@ -1,5 +1,7 @@
-export const CONTRACT_ADDRESS = "0xf53b2680f865b75554e140507300871a72a9171e";
-export const CONTRACT_ABI =[
+Hash transazione (deploy): 0x44506f6bbcb61afdc220ac476c468b01361e1e8ff6e4c28cbd879c3e16b05eb8
+
+Contract address: 0xf53b2680f865b75554e140507300871a72a9171e
+ABI: [
 	{
 		"inputs": [],
 		"stateMutability": "nonpayable",
