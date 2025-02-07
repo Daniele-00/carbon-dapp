@@ -1,11 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Navbar from "@/components/navigation/Navbar";
-import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { ethers } from "ethers";
 import { getContract } from "@/web3/contract";
-import { p } from "framer-motion/client";
 
 // Interfacce aggiornate per gli eventi
 interface TokenMintedEvent extends ethers.EventLog {
@@ -330,7 +328,6 @@ export default function DashboardPage() {
             </button>
           </div>
         </div>
-        <Footer />
       </main>
     );
   }
