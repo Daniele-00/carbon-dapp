@@ -6,7 +6,7 @@ Carbon2D è una DApp (Decentralized Application) che permette agli utenti di cal
 
 Prima di iniziare, assicurati di avere installato:
 
-- Node.js (versione 14.0 o superiore)
+- Node.js (versione 20.12.2)
 - npm (Node Package Manager)
 - MetaMask o un altro wallet Ethereum nel browser
 - Un account sulla Sepolia TestNet con alcuni ETH di test
