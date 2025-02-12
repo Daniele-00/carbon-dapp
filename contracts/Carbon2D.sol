@@ -13,6 +13,8 @@ contract Carbon2D is ERC20, Ownable {
     // Struttura che definisce un progetto di compensazione ambientale
     struct CompensationProject {
         string name;                // Nome del progetto
+        string description;         // Descrizione del progetto
+        string location;            // Posizione del progetto
         uint256 requiredTokens;     // Numero di token necessari per completare il progetto
         uint256 co2Reduction;       // Quantità di CO2 che il progetto ridurrà (in kg)
         bool active;               // Stato del progetto (attivo/completato)
@@ -55,9 +57,10 @@ contract Carbon2D is ERC20, Ownable {
         projectCounter = 0;
         totalMintedTokens = 0;
         // Crea i progetti iniziali con valori predefiniti
-        _createProject("Riforestazione Amazzonica", 5, 500);
-        _createProject("Energia Solare in Africa", 3, 300);
-        _createProject("Turbine Eoliche", 8, 800);
+        _createProject("Energia Solare in Africa","Supporta la riforestazione della foresta amazzonica","Africa", 3, 300);
+         _createProject("Turbine Eoliche","Sviluppo di un parco eolico per energia pulita","Europa" ,8, 800);
+        _createProject("Riforestazione Amazzonica","Installa pannelli solari in comunita rurali africane","America Del Sud", 5, 500);
+       
     }
 
     /**
@@ -68,12 +71,16 @@ contract Carbon2D is ERC20, Ownable {
      */
     function _createProject(
         string memory name,
+        string memory description,
+        string memory location,
         uint256 requiredTokens,
         uint256 co2Reduction
     ) internal {
         projectCounter++;
         projects[projectCounter] = CompensationProject(
             name,
+            description,
+            location,
             requiredTokens,
             co2Reduction,
             true,
@@ -87,10 +94,12 @@ contract Carbon2D is ERC20, Ownable {
     // Funzione per creare un nuovo progetto (pubblica)
     function createProject(
         string memory name,
+        string memory description,
+        string memory location,
         uint256 requiredTokens,
         uint256 co2Reduction
     ) public {
-        _createProject(name, requiredTokens, co2Reduction);
+        _createProject(name,description,location, requiredTokens, co2Reduction);
     }
 
 
