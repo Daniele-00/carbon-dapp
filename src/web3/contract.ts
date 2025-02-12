@@ -82,7 +82,7 @@ export async function contributeToProject(
   }
 }
 
-// Per creare un nuovo progetto, modificheremo la chiamata
+// Creare un nuovo progetto
 export async function createNewProject(
   provider: ethers.BrowserProvider,
   title: string,
