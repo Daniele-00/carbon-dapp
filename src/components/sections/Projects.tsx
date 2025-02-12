@@ -126,11 +126,10 @@ const ProjectsSection = () => {
         console.error("Errore nel recupero dei progressi:", error);
       }
     };
-
-    if (walletConnected) {
-      fetchProjectProgresses();
-    }
-  }, [walletConnected]);
+  
+    // Rimuovi la condizione walletConnected
+    fetchProjectProgresses();
+  }, [projects]); // Aggiungi projects come dipendenza
 
   const handleAccountsChanged = (accounts: string[]) => {
     if (accounts.length === 0) {
