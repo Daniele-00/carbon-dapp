@@ -7,7 +7,7 @@ interface Project {
   id: number;
   title: string;
   description: string;
-  tokens: number; // Solo questo campo per i token
+  tokens: number; 
   co2: string;
   location: string;
 }
@@ -30,47 +30,43 @@ const ProjectsSection = () => {
 
   // Carica i progetti da localStorage solo lato client
   useEffect(() => {
-    // Verifica se siamo sul client per evitare errori di hydration
-    if (typeof window !== 'undefined') {
-      const savedProjects = localStorage.getItem("carbonProjects");
-      
-      if (savedProjects) {
-        // Se ci sono progetti salvati, usa quelli
-        setProjects(JSON.parse(savedProjects));
-      } else {
-        // Se non ci sono progetti, usa quelli di default e salvali
-        const defaultProjects = [
-          {
-            id: 1,
-            title: "Riforestazione Amazzonica",
-            description: "Supporta la riforestazione della foresta amazzonica",
-            tokens: 5,
-            co2: "500kg",
-            location: "America Del Sud",
-          },
-          {
-            id: 2,
-            title: "Energia Solare in Africa",
-            description: "Installa pannelli solari in comunità rurali africane",
-            tokens: 3,
-            co2: "300kg",
-            location: "Africa",
-          },
-          {
-            id: 3,
-            title: "Turbine Eoliche",
-            description: "Sviluppo di un parco eolico per energia pulita",
-            tokens: 8,
-            co2: "800kg",
-            location: "Europa",
+    const fetchProjects = async () => {
+      if (typeof window !== 'undefined' && window.ethereum) {
+        try {
+          const contract = await getContract();
+          const projectCounter = await contract.projectCounter();
+          
+          const fetchedProjects: Project[] = [];
+          
+          for (let i = 1; i <= projectCounter; i++) {
+            const project = await contract.projects(i);
+            
+            fetchedProjects.push({
+              id: i,
+              title: project.name,
+              description: project.description || "",
+              tokens: Number(project.requiredTokens),
+              co2: `${project.co2Reduction}kg`,
+              location: project.location || "Sconosciuto",
+            });
           }
-        ];
-        
-        localStorage.setItem("carbonProjects", JSON.stringify(defaultProjects));
-        setProjects(defaultProjects);
+          
+          setProjects(fetchedProjects);
+          localStorage.setItem("carbonProjects", JSON.stringify(fetchedProjects));
+        } catch (error) {
+          console.error("Errore nel recuperare i progetti:", error);
+          
+          // Fallback al localStorage se c'è un problema con il contratto
+          const savedProjects = localStorage.getItem("carbonProjects");
+          if (savedProjects) {
+            setProjects(JSON.parse(savedProjects));
+          }
+        }
       }
-    }
-  }, []); 
+    };
+  
+    fetchProjects();
+  }, []);
 
   // Salvo i progetti in localStorage quando cambiano
   useEffect(() => {
@@ -173,11 +169,20 @@ const ProjectsSection = () => {
       const accounts = await window.ethereum.request({
         method: "eth_requestAccounts",
       });
-      setWalletConnected(true);
-      setAccount(accounts[0]);
-      setError("");
+      
+      if (accounts.length > 0) {
+        setWalletConnected(true);
+        setAccount(accounts[0]);
+        setError("");
+      }
     } catch (err: any) {
-      setError("Errore nella connessione al wallet: " + err.message);
+      // Gestione specifica del rifiuto
+      if (err.code === 4001) {
+        console.log("Connessione wallet rifiutata dall'utente");
+        // Non imposta alcun errore, lascia i progetti visualizzati
+      } else {
+        setError("Errore nella connessione al wallet: " + err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -284,36 +289,40 @@ const ProjectsSection = () => {
       setLoading(true);
       setError("");
       setSuccessMessage("");
-
+  
       const provider = new ethers.BrowserProvider(window.ethereum);
       const contract = await getContract();
-
-      // Converti i dati nel formato richiesto dal contratto
+  
+      // Chiamata al contratto con tutti i parametri
       const tx = await contract.createProject(
-        newProject.title,
-        newProject.tokens,
-        parseInt(newProject.co2.replace("kg", "") || "0"), // Rimuovi 'kg' se presente
+        newProject.title || "",
+        newProject.description || "",
+        newProject.location || "Sconosciuto",
+        newProject.tokens || 0,
+        parseInt(newProject.co2?.replace("kg", "") || "0")
       );
-
-      const receipt = await tx.wait();
-
-      // Aggiungi il nuovo progetto alla lista
-      const newProjectId = projects.length + 1;
-      setProjects((prev) => [
-        ...prev,
-        {
-          id: newProjectId,
-          title: newProject.title || "",
-          description: newProject.description || "",
-          tokens: newProject.tokens || 0, // Valore di default
-          co2: newProject.co2 || "0kg",
-          price: newProject.co2
-            ? parseInt(newProject.co2.replace("kg", "")) * 100
-            : 0,
-          location: newProject.location || "Sconosciuto",
-        },
-      ]);
-
+  
+      await tx.wait();
+  
+      // Ricarica tutti i progetti dal contratto
+      const projectCounter = await contract.projectCounter();
+      const fetchedProjects: Project[] = [];
+      
+      for (let i = 1; i <= projectCounter; i++) {
+        const project = await contract.projects(i);
+        fetchedProjects.push({
+          id: i,
+          title: project.name,
+          description: project.description,
+          tokens: Number(project.requiredTokens),
+          co2: `${project.co2Reduction}kg`,
+          location: project.location,
+        });
+      }
+  
+      setProjects(fetchedProjects);
+      localStorage.setItem("carbonProjects", JSON.stringify(fetchedProjects));
+  
       // Reset stato
       setNewProject({
         title: "",
@@ -322,11 +331,11 @@ const ProjectsSection = () => {
         location: "",
       });
       setIsAddingProject(false);
-
+  
       // Mostra messaggio di successo
       setSuccessMessage("Nuovo progetto creato con successo!");
     } catch (error: any) {
-      setError("Errore nell'aggiunta del progetto");
+      setError("Errore nell'aggiunta del progetto: " + error.message);
     } finally {
       setLoading(false);
     }

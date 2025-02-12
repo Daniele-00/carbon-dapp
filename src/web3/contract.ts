@@ -86,6 +86,8 @@ export async function contributeToProject(
 export async function createNewProject(
   provider: ethers.BrowserProvider,
   title: string,
+  description: string,
+  location: string,
   requiredTokens: number,
   co2Reduction: number
 ) {
@@ -95,6 +97,8 @@ export async function createNewProject(
   try {
     const tx = await contract.createProject(
       title,
+      description,
+      location,
       requiredTokens,
       co2Reduction
     );
@@ -102,7 +106,7 @@ export async function createNewProject(
     return {
       success: true,
       transactionHash: receipt.hash,
-      projectDetails: { title, requiredTokens, co2Reduction }
+      projectDetails: { title,description, location, requiredTokens, co2Reduction }
     };
   } catch (error: any) {
     throw new Error(error.reason || error.message || "Errore nella creazione del progetto");
