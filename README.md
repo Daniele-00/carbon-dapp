@@ -37,7 +37,7 @@ npm install
 - Seleziona l'ambiente "Injected Provider - MetaMask"
 - Assicurati di essere connesso alla rete Sepolia in MetaMask
 - Compila e deploya il contratto
-- Copia l'ABI e l'indirizzo del contratto deployato e aggiornali in `web3/config.js`
+- Copia l'ABI e l'indirizzo del contratto deployato e aggiornali in `web3/config.ts`
 
 3. Avvia l'applicazione:
 ```bash
@@ -77,7 +77,7 @@ ganache
 - Seleziona l'ambiente "Injected Provider - MetaMask"
 - Assicurati di essere connesso alla rete Ganache in MetaMask
 - Compila e deploya il contratto
-- Copia l'ABI e l'indirizzo del contratto deployato e aggiornali in `web3/config.js`
+- Copia l'ABI e l'indirizzo del contratto deployato e aggiornali in `web3/config.ts`
 
 5. Avvia l'applicazione:
 ```bash
