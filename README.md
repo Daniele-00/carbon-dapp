@@ -107,4 +107,4 @@ npm run dev
 - Smart Contract: Solidity
 - Web3 Library: ethers.js
 
-## N.B È possibile consultare la documentazione del progetto in pdf dal file Progetto_DSBC.
+*N.B È possibile consultare la documentazione del progetto in pdf dal file Progetto_DSBC.*
